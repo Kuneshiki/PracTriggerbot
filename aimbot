@@ -1,0 +1,30 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- Function to find the closest player
+local function findClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge -- Set to infinity
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = player.Character.HumanoidRootPart.Position
+            local distance = (targetPosition - LocalPlayer.Character.HumanoidRootPart.Position).magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestPlayer = player
+            end
+        end
+    end
+    return closestPlayer
+end
+
+-- Main aimbot logic
+game:GetService("RunService").RenderStepped:Connect(function()
+    local target = findClosestPlayer()
+    if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPosition = target.Character.HumanoidRootPart.Position
+        Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPosition)
+    end
+end)
