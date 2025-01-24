@@ -1,0 +1,44 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+
+local function highlightPlayer(player)
+    local highlight = Instance.new("Highlight")
+    highlight.parent = player.Characterhighlight.FillColor = Color3.fromRGB(255,0,0)
+    highlight.OutlineColor = Color3.new(0.000000, 0.466667, 1.000000)
+end
+
+for _, player in ipairs(Players:GetPlayers())do
+    highlightPlayer(player)
+end
+
+local shootRemote = game:GetService("ReplicatedStorage"):FindFirstChild("--------") -- Replace "ShootEvent" with the actual name
+
+local function shoot()
+    if shootRemote then
+        shootRemote:FireServer() -- Simulate a shot
+    else
+        print("Shoot remote not found!")
+    end
+end
+
+-- Triggerbot logic
+RunService.RenderStepped:Connect(function()
+    -- Raycast parameters
+    local rayOrigin = Camera.CFrame.Position
+    local rayDirection = Camera.CFrame.LookVector * 1000 -- Cast ray 1000 studs forward
+    local rayParams = RaycastParams.new()
+    rayParams.FilterDescendantsInstances = {LocalPlayer.Character} -- Ignore local player
+    rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+    -- Perform raycast
+    local raycastResult = workspace:Raycast(rayOrigin, rayDirection, rayParams)
+    if raycastResult then
+        local hit = raycastResult.Instance
+        if hit and hit.Parent and hit.Parent:FindFirstChild("Humanoid") then
+            -- Valid target found
+            shoot()
+        end
+    end
+end)
